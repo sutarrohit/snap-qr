@@ -1,4 +1,4 @@
-import {
+import QRCodeStyling, {
     DrawType,
     TypeNumber,
     Mode,
@@ -8,7 +8,9 @@ import {
     CornerDotType,
     Options,
     ShapeType,
-    FileExtension
+    FileExtension,
+    DownloadOptions,
+    ExtensionFunction
 } from "qr-code-styling";
 
 export interface LayoutOptions {
@@ -20,6 +22,7 @@ export interface LayoutOptions {
     image?: string;
     nodeCanvas?: Options["nodeCanvas"];
     jsdom?: Options["jsdom"];
+    responsive?: boolean;
 }
 
 export interface SnapQROptions {
@@ -34,13 +37,19 @@ export interface SnapQROptions {
 
 export interface UseSnapQRReturn {
     SnapQRComponent: React.FC<{ className?: string }>;
-    onDataChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    onExtensionChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-    onDownloadClick: () => void;
-    updateData: (newData: string) => void;
-    updateOptions: (newOptions: Partial<SnapQROptions>) => void;
     fileExt: FileExtension;
     currentData: string;
+    error: string | null;
+    qrCodeInstance: QRCodeStyling | null;
+    onDataChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onExtensionChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    onDownloadClick: (downloadOptions?: Partial<DownloadOptions> | string) => void;
+    updateData: (newData: string) => void;
+    updateOptions: (newOptions: Partial<SnapQROptions>) => void;
+    applyExtension: (extension: ExtensionFunction) => void;
+    deleteExtension: () => void;
+    getRawData: (extension?: FileExtension) => Promise<Blob | Buffer | null>;
+    appendToContainer: (container?: HTMLElement) => void;
 }
 
 // Props for standalone component (optional)

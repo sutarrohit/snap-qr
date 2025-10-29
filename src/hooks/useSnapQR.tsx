@@ -51,44 +51,6 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         [options, fileExt, currentData]
     );
 
-    // Single initialization effect
-    useEffect(() => {
-        if (isInitialized.current) return;
-
-        const initQRCode = async () => {
-            try {
-                setError(null);
-                // Dynamic import for better bundle size
-                const QRCodeStyling = (await import("qr-code-styling")).default;
-                qrCodeRef.current = new QRCodeStyling(mergedOptions as Options);
-
-                if (containerRef.current) {
-                    containerRef.current.innerHTML = "";
-                    qrCodeRef.current.append(containerRef.current);
-                    isInitialized.current = true;
-                }
-            } catch (error) {
-                console.error("Failed to initialize QR code:", error);
-                setError("Failed to initialize QR code");
-            }
-        };
-
-        initQRCode();
-    }, []); // Empty dependency - only run once
-
-    // Efficient updates
-    useEffect(() => {
-        if (!isInitialized.current || !qrCodeRef.current) return;
-
-        try {
-            setError(null);
-            qrCodeRef.current.update(mergedOptions as Options);
-        } catch (error) {
-            console.error("Failed to update QR code:", error);
-            setError("Failed to update QR code");
-        }
-    }, [mergedOptions]);
-
     // Memoized event handlers
     const onDataChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setCurrentData(event.target.value);
@@ -96,6 +58,44 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
 
     const updateData = useCallback((newData: string) => {
         setCurrentData(newData);
+    }, []);
+
+    // Proper updateOptions implementation
+    const updateOptions = useCallback((newOptions: Partial<SnapQROptions>) => {
+        setOptions((prevOptions) => ({
+            ...prevOptions,
+            // Deep merge for nested options
+            layoutOptions: {
+                ...prevOptions.layoutOptions,
+                ...newOptions.layoutOptions
+            },
+            qrOptions: {
+                ...prevOptions.qrOptions,
+                ...newOptions.qrOptions
+            },
+            imageOptions: {
+                ...prevOptions.imageOptions,
+                ...newOptions.imageOptions
+            },
+            dotsOptions: {
+                ...prevOptions.dotsOptions,
+                ...newOptions.dotsOptions
+            },
+            backgroundOptions: {
+                ...prevOptions.backgroundOptions,
+                ...newOptions.backgroundOptions
+            },
+            cornersSquareOptions: {
+                ...prevOptions.cornersSquareOptions,
+                ...newOptions.cornersSquareOptions
+            },
+            cornersDotOptions: {
+                ...prevOptions.cornersDotOptions,
+                ...newOptions.cornersDotOptions
+            },
+            // Spread any other top-level properties
+            ...newOptions
+        }));
     }, []);
 
     const onExtensionChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
@@ -124,6 +124,20 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         },
         [fileExt]
     );
+
+    // Manual container attachment
+    const appendToContainer = useCallback((container?: HTMLElement) => {
+        if (qrCodeRef.current && container) {
+            try {
+                setError(null);
+                container.innerHTML = "";
+                qrCodeRef.current.append(container);
+            } catch (error) {
+                console.error("Failed to append to container:", error);
+                setError("Failed to append to container");
+            }
+        }
+    }, []);
 
     // Get raw data without downloading
     const getRawData = useCallback(
@@ -167,87 +181,111 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         }
     }, []);
 
-    // Manual container attachment
-    const appendToContainer = useCallback((container?: HTMLElement) => {
-        if (qrCodeRef.current && container) {
+    // Single initialization effect
+    useEffect(() => {
+        if (isInitialized.current) return;
+
+        const initQRCode = async () => {
             try {
                 setError(null);
-                container.innerHTML = "";
-                qrCodeRef.current.append(container);
-            } catch (error) {
-                console.error("Failed to append to container:", error);
-                setError("Failed to append to container");
-            }
-        }
-    }, []);
+                // Dynamic import for better bundle size
+                const QRCodeStyling = (await import("qr-code-styling")).default;
+                qrCodeRef.current = new QRCodeStyling(mergedOptions as Options);
 
-    // Proper updateOptions implementation
-    const updateOptions = useCallback((newOptions: Partial<SnapQROptions>) => {
-        setOptions((prevOptions) => ({
-            ...prevOptions,
-            // Deep merge for nested options
-            layoutOptions: {
-                ...prevOptions.layoutOptions,
-                ...newOptions.layoutOptions
-            },
-            qrOptions: {
-                ...prevOptions.qrOptions,
-                ...newOptions.qrOptions
-            },
-            imageOptions: {
-                ...prevOptions.imageOptions,
-                ...newOptions.imageOptions
-            },
-            dotsOptions: {
-                ...prevOptions.dotsOptions,
-                ...newOptions.dotsOptions
-            },
-            backgroundOptions: {
-                ...prevOptions.backgroundOptions,
-                ...newOptions.backgroundOptions
-            },
-            cornersSquareOptions: {
-                ...prevOptions.cornersSquareOptions,
-                ...newOptions.cornersSquareOptions
-            },
-            cornersDotOptions: {
-                ...prevOptions.cornersDotOptions,
-                ...newOptions.cornersDotOptions
-            },
-            // Spread any other top-level properties
-            ...newOptions
-        }));
-    }, []);
+                if (containerRef.current) {
+                    containerRef.current.innerHTML = "";
+                    qrCodeRef.current.append(containerRef.current);
+                    isInitialized.current = true;
+                }
+            } catch (error) {
+                console.error("Failed to initialize QR code:", error);
+                setError("Failed to initialize QR code");
+            }
+        };
+
+        initQRCode();
+    }, []); // Empty dependency - only run once
+
+    // Efficient updates
+    useEffect(() => {
+        if (!isInitialized.current || !qrCodeRef.current) return;
+
+        try {
+            setError(null);
+            qrCodeRef.current.update(mergedOptions as Options);
+        } catch (error) {
+            console.error("Failed to update QR code:", error);
+            setError("Failed to update QR code");
+        }
+    }, [mergedOptions]);
+
+    // Handle container resize for responsive behavior
+    useEffect(() => {
+        if (!containerRef.current || !initialOptions?.layoutOptions?.responsive) return;
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                const { width, height } = entry.contentRect;
+                if (qrCodeRef?.current && width > 0 && height > 0) {
+                    // Update QR code size to match container
+
+                    console.log("width", width);
+                    console.log("height", height);
+                    qrCodeRef?.current?.update({
+                        width: Math.min(width, height),
+                        height: Math.min(width, height)
+                    });
+                }
+            }
+        });
+
+        resizeObserver.observe(containerRef.current);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [initialOptions?.layoutOptions?.responsive, currentData]);
+
+    // const SnapQRComponent = useCallback<React.FC<{ className?: string }>>(
+    //     ({ className = "" }) => (
+    //         <div className={cn(`snap-qr-container size-full overflow-auto ${className}`)}>
+    //             {error && <div className='snap-qr-error text-red-500 text-sm  bg-red-50 rounded'>{error}</div>}
+    //             <div ref={containerRef} className='size-full' />
+    //         </div>
+    //     ),
+    //     [error]
+    // );
 
     const SnapQRComponent = useCallback<React.FC<{ className?: string }>>(
         ({ className = "" }) => (
-            <div className={cn(`snap-qr-container overflow-auto ${className}`)}>
-                {error && <div className='snap-qr-error text-red-500 text-sm p-2 bg-red-50 rounded'>{error}</div>}
-                <div ref={containerRef} />
+            <div
+                className={cn(
+                    `snap-qr-container flex justify-center items-center size-fit overflow-hidden ${className}`,
+                    initialOptions?.layoutOptions?.responsive && "size-full"
+                )}
+                style={initialOptions?.layoutOptions?.responsive ? { width: "100%", height: "auto" } : {}}
+            >
+                {error && <div className='snap-qr-error text-red-500 text-sm bg-red-50 rounded'>{error}</div>}
+                <div
+                    ref={containerRef}
+                    className={
+                        initialOptions?.layoutOptions?.responsive
+                            ? "w-full h-full flex items-center justify-center"
+                            : "size-fit"
+                    }
+                />
             </div>
         ),
-        [error]
+        [error, initialOptions?.layoutOptions?.responsive]
     );
 
     return useMemo(
         () => ({
             SnapQRComponent,
-            onDataChange,
-            onExtensionChange,
-            onDownloadClick,
-            updateData,
-            updateOptions,
-            applyExtension,
-            deleteExtension,
-            getRawData,
-            appendToContainer,
             fileExt,
             currentData,
             error,
-            qrCodeInstance: qrCodeRef.current
-        }),
-        [
-            SnapQRComponent,
+            qrCodeInstance: qrCodeRef.current,
             onDataChange,
             onExtensionChange,
             onDownloadClick,
@@ -256,10 +294,23 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
             applyExtension,
             deleteExtension,
             getRawData,
-            appendToContainer,
+            appendToContainer
+        }),
+        [
+            SnapQRComponent,
             fileExt,
             currentData,
-            error
+            error,
+
+            onDataChange,
+            onExtensionChange,
+            onDownloadClick,
+            updateData,
+            updateOptions,
+            applyExtension,
+            deleteExtension,
+            getRawData,
+            appendToContainer
         ]
     );
 }

@@ -3,16 +3,16 @@ import { Options } from "qr-code-styling";
 export const DEFAULT_OPTIONS: Partial<Options> = {
     width: 300,
     height: 300,
-    margin: 2,
+    margin: 7,
     qrOptions: {
-        typeNumber: 4,
+        typeNumber: 0,
         mode: "Byte",
-        errorCorrectionLevel: "Q"
+        errorCorrectionLevel: "H"
     },
     imageOptions: {
         hideBackgroundDots: true,
-        imageSize: 0.3,
-        margin: 4,
+        imageSize: 0.1,
+        margin: 3,
         crossOrigin: "anonymous",
         saveAsBlob: false
     },
@@ -33,4 +33,4 @@ export const DEFAULT_OPTIONS: Partial<Options> = {
     }
 } as const;
 
-export const DEFAULT_IMAGE = "https://static.thenounproject.com/png/3159389-84.png";
+export const DEFAULT_IMAGE = "./logo.svg";
