@@ -17,13 +17,13 @@ export default function Home() {
 
         {
             layoutOptions: {
-                width: 300,
-                height: 300,
+                width: 500,
+                height: 500,
                 type: "svg",
                 shape: "square",
                 margin: 10,
                 // image: "https://app.termix.ai/_next/image?url=%2Flogo.svg&w=128&q=75&dpl=dpl_4Er1WHeqMwUabYf1D299HgK6NTvR",
-                responsive: false
+                responsive: true
             },
 
             dotsOptions: {
@@ -45,9 +45,9 @@ export default function Home() {
     };
 
     return (
-        <div className='flex flex-col gap-4 min-h-screen items-center justify-center'>
-            <div className='size-[250px] md:size-[500px] flex justify-center items-center border border-yellow-500'>
-                <SnapQRComponent className='rounded-2xl border border-pink-500' />
+        <div className='flex flex-col gap-4 min-h-screen items-center justify-center p-5'>
+            <div className='size-[250px] md:size-[400px] flex justify-center items-center border border-yellow-500 '>
+                <SnapQRComponent className='' />
             </div>
             <input value={currentData} onChange={onDataChange} className='border px-2 py-1' />
             <select onChange={onExtensionChange}>

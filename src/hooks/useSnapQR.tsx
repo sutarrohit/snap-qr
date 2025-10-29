@@ -5,17 +5,38 @@ import QRCodeStyling, { Options, FileExtension, DownloadOptions, ExtensionFuncti
 import { SnapQROptions, UseSnapQRReturn } from "../types";
 import { DEFAULT_OPTIONS, DEFAULT_IMAGE, cn } from "../lib";
 
+/**
+ * React hook to create and manage a QR code using `qr-code-styling`.
+ *
+ * - Keeps an internal QRCodeStyling instance and a container ref for rendering.
+ * - Exposes a small React component to place the QR on the page.
+ * - Provides helpers for updating data/options, applying/removing extensions,
+ *   downloading, and getting raw data (Blob/Buffer).
+ *
+ * @param initialData - initial string to encode into the QR code
+ * @param initialOptions - optional initial SnapQROptions to configure appearance/behavior
+ * @returns an object with component, instance, controls and helpers for the QR code
+ */
 export default function useSnapQR(initialData: string, initialOptions?: SnapQROptions): UseSnapQRReturn {
+    // --- State ---
     const [currentData, setCurrentData] = useState(initialData);
     const [fileExt, setFileExt] = useState<FileExtension>("svg");
     const [options, setOptions] = useState<SnapQROptions>(initialOptions || {});
     const [error, setError] = useState<string | null>(null);
 
-    const qrCodeRef = useRef<QRCodeStyling | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const isInitialized = useRef(false);
+    // --- Refs ---
+    const qrCodeRef = useRef<QRCodeStyling | null>(null); // holds the active QRCodeStyling instance
+    const containerRef = useRef<HTMLDivElement>(null); // DOM container for display
+    const isInitialized = useRef(false); // ensure we only initialize once
 
-    // Memoize merged options
+    // Track the original dimensions to use for downloads and raw exports.
+    const originalDimensions = useRef({
+        width: initialOptions?.layoutOptions?.width || 1000,
+        height: initialOptions?.layoutOptions?.height || 1000
+    });
+
+    // --- Compute merged options ---
+    // Merge DEFAULT_OPTIONS with user-supplied options and current state (data + file extension).
     const mergedOptions = useMemo(
         () => ({
             ...DEFAULT_OPTIONS,
@@ -51,20 +72,28 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         [options, fileExt, currentData]
     );
 
-    // Memoized event handlers
+    // --- Event handlers / API exposed to consumers ---
+
+    // Controlled input change handler for data field
     const onDataChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setCurrentData(event.target.value);
     }, []);
 
+    // Directly replace the QR data value
     const updateData = useCallback((newData: string) => {
         setCurrentData(newData);
     }, []);
 
-    // Proper updateOptions implementation
+    /**
+     * Merge and update options. Only the provided sub-sections are merged,
+     * preserving previously set option groups.
+     *
+     * Also updates `originalDimensions` if width/height are provided so
+     * downloads/export use the intended size.
+     */
     const updateOptions = useCallback((newOptions: Partial<SnapQROptions>) => {
         setOptions((prevOptions) => ({
             ...prevOptions,
-            // Deep merge for nested options
             layoutOptions: {
                 ...prevOptions.layoutOptions,
                 ...newOptions.layoutOptions
@@ -93,39 +122,92 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
                 ...prevOptions.cornersDotOptions,
                 ...newOptions.cornersDotOptions
             },
-            // Spread any other top-level properties
             ...newOptions
         }));
+
+        // Keep download/export dimensions in sync when layout width/height are provided.
+        if (newOptions.layoutOptions?.width || newOptions.layoutOptions?.height) {
+            originalDimensions.current = {
+                width: newOptions.layoutOptions?.width || originalDimensions.current.width,
+                height: newOptions.layoutOptions?.height || originalDimensions.current.height
+            };
+        }
     }, []);
 
+    // Handler to change the output file extension (svg/png/jpg)
     const onExtensionChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
         setFileExt(event.target.value as FileExtension);
     }, []);
 
-    // Enhanced download with more options
+    /**
+     * Download the QR code using the original (export) dimensions.
+     * Accepts either a string extension or a partial DownloadOptions object.
+     */
     const onDownloadClick = useCallback(
         (downloadOptions?: Partial<DownloadOptions> | string) => {
-            if (!qrCodeRef.current) return;
-
             try {
                 setError(null);
-                if (typeof downloadOptions === "string") {
-                    qrCodeRef.current.download(downloadOptions);
-                } else {
-                    qrCodeRef.current.download({
-                        extension: fileExt,
-                        ...downloadOptions
-                    });
-                }
+
+                // Create a temporary QR instance configured for export size to avoid changing the on-screen responsive instance.
+                const downloadQR = async () => {
+                    const QRCodeStyling = (await import("qr-code-styling")).default;
+                    const tempQr = new QRCodeStyling({
+                        ...mergedOptions,
+                        width: originalDimensions.current.width,
+                        height: originalDimensions.current.height
+                    } as Options);
+
+                    if (typeof downloadOptions === "string") {
+                        tempQr.download(downloadOptions);
+                    } else {
+                        tempQr.download({
+                            extension: fileExt,
+                            ...downloadOptions
+                        });
+                    }
+                };
+
+                // run the async download
+                downloadQR();
             } catch (error) {
+                // Keep error state for UI and debugging
                 console.error("Failed to download QR code:", error);
                 setError("Failed to download QR code");
             }
         },
-        [fileExt]
+        [mergedOptions, fileExt]
     );
 
-    // Manual container attachment
+    /**
+     * Get the raw exported data (Blob or Buffer) using the original export dimensions.
+     * Returns null and sets error state on failure.
+     */
+    const getRawData = useCallback(
+        async (extension?: FileExtension): Promise<Blob | Buffer | null> => {
+            try {
+                setError(null);
+
+                const QRCodeStyling = (await import("qr-code-styling")).default;
+                const tempQr = new QRCodeStyling({
+                    ...mergedOptions,
+                    width: originalDimensions.current.width,
+                    height: originalDimensions.current.height
+                } as Options);
+
+                return await tempQr.getRawData(extension || fileExt);
+            } catch (error) {
+                console.error("Failed to get raw data:", error);
+                setError("Failed to get raw data");
+                return null;
+            }
+        },
+        [mergedOptions, fileExt]
+    );
+
+    /**
+     * If consumer wants to attach the QR to a different container element,
+     * this appends the existing instance to the provided container.
+     */
     const appendToContainer = useCallback((container?: HTMLElement) => {
         if (qrCodeRef.current && container) {
             try {
@@ -139,24 +221,10 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         }
     }, []);
 
-    // Get raw data without downloading
-    const getRawData = useCallback(
-        async (extension?: FileExtension): Promise<Blob | Buffer | null> => {
-            if (!qrCodeRef.current) return null;
-
-            try {
-                setError(null);
-                return await qrCodeRef.current.getRawData(extension || fileExt);
-            } catch (error) {
-                console.error("Failed to get raw data:", error);
-                setError("Failed to get raw data");
-                return null;
-            }
-        },
-        [fileExt]
-    );
-
-    // Extension management
+    /**
+     * Apply a QRCodeStyling extension function to the current instance.
+     * See `qr-code-styling` docs for extension shape.
+     */
     const applyExtension = useCallback((extension: ExtensionFunction) => {
         if (qrCodeRef.current) {
             try {
@@ -169,6 +237,9 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         }
     }, []);
 
+    /**
+     * Remove the currently applied extension from the instance.
+     */
     const deleteExtension = useCallback(() => {
         if (qrCodeRef.current) {
             try {
@@ -181,14 +252,13 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         }
     }, []);
 
-    // Single initialization effect
+    // --- Initialization: create QRCodeStyling instance once ---
     useEffect(() => {
         if (isInitialized.current) return;
 
         const initQRCode = async () => {
             try {
                 setError(null);
-                // Dynamic import for better bundle size
                 const QRCodeStyling = (await import("qr-code-styling")).default;
                 qrCodeRef.current = new QRCodeStyling(mergedOptions as Options);
 
@@ -204,36 +274,47 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         };
 
         initQRCode();
-    }, []); // Empty dependency - only run once
+        // Intentionally no dependencies to ensure this runs only once on mount.
+        // mergedOptions is intentionally not included here to avoid re-creating the instance.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    // Efficient updates
+    /**
+     * Update the on-screen QR code whenever visual options/data change.
+     * We remove width/height so the instance remains responsive (size handled by container/resizer).
+     */
     useEffect(() => {
         if (!isInitialized.current || !qrCodeRef.current) return;
 
         try {
             setError(null);
-            qrCodeRef.current.update(mergedOptions as Options);
+            const displayOptions = { ...mergedOptions } as Options;
+            // Remove explicit size to keep responsiveness
+            delete (displayOptions as Partial<Options>).width;
+            delete (displayOptions as Partial<Options>).height;
+            qrCodeRef.current.update(displayOptions);
         } catch (error) {
             console.error("Failed to update QR code:", error);
             setError("Failed to update QR code");
         }
     }, [mergedOptions]);
 
-    // Handle container resize for responsive behavior
+    /**
+     * Observe container size and update the QR instance to keep it square & responsive.
+     * Uses the smaller of width/height to preserve aspect ratio.
+     */
     useEffect(() => {
-        if (!containerRef.current || !initialOptions?.layoutOptions?.responsive) return;
+        if (!containerRef.current) return;
 
         const resizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 const { width, height } = entry.contentRect;
-                if (qrCodeRef?.current && width > 0 && height > 0) {
-                    // Update QR code size to match container
 
-                    console.log("width", width);
-                    console.log("height", height);
-                    qrCodeRef?.current?.update({
-                        width: Math.min(width, height),
-                        height: Math.min(width, height)
+                if (qrCodeRef?.current && width > 0 && height > 0) {
+                    const size = Math.min(width, height);
+                    qrCodeRef.current.update({
+                        width: size,
+                        height: size
                     });
                 }
             }
@@ -244,41 +325,20 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
         return () => {
             resizeObserver.disconnect();
         };
-    }, [initialOptions?.layoutOptions?.responsive, currentData]);
+    }, []);
 
-    // const SnapQRComponent = useCallback<React.FC<{ className?: string }>>(
-    //     ({ className = "" }) => (
-    //         <div className={cn(`snap-qr-container size-full overflow-auto ${className}`)}>
-    //             {error && <div className='snap-qr-error text-red-500 text-sm  bg-red-50 rounded'>{error}</div>}
-    //             <div ref={containerRef} className='size-full' />
-    //         </div>
-    //     ),
-    //     [error]
-    // );
-
+    // Minimal presentational component for placing the QR in the app.
     const SnapQRComponent = useCallback<React.FC<{ className?: string }>>(
         ({ className = "" }) => (
-            <div
-                className={cn(
-                    `snap-qr-container flex justify-center items-center size-fit overflow-hidden ${className}`,
-                    initialOptions?.layoutOptions?.responsive && "size-full"
-                )}
-                style={initialOptions?.layoutOptions?.responsive ? { width: "100%", height: "auto" } : {}}
-            >
-                {error && <div className='snap-qr-error text-red-500 text-sm bg-red-50 rounded'>{error}</div>}
-                <div
-                    ref={containerRef}
-                    className={
-                        initialOptions?.layoutOptions?.responsive
-                            ? "w-full h-full flex items-center justify-center"
-                            : "size-fit"
-                    }
-                />
+            <div className={cn("snap-qr-container w-full h-full", className)}>
+                {error && <div className='snap-qr-error text-red-500 text-sm bg-red-50 rounded p-2 mb-2'>{error}</div>}
+                <div ref={containerRef} className='w-full h-full flex items-center justify-center' />
             </div>
         ),
-        [error, initialOptions?.layoutOptions?.responsive]
+        [error]
     );
 
+    // Return stable API for consumers of the hook.
     return useMemo(
         () => ({
             SnapQRComponent,
@@ -294,14 +354,14 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
             applyExtension,
             deleteExtension,
             getRawData,
-            appendToContainer
+            appendToContainer,
+            originalDimensions: originalDimensions.current // exposed for debugging/advanced use
         }),
         [
             SnapQRComponent,
             fileExt,
             currentData,
             error,
-
             onDataChange,
             onExtensionChange,
             onDownloadClick,

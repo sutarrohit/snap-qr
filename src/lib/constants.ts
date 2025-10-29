@@ -14,7 +14,7 @@ export const DEFAULT_OPTIONS: Partial<Options> = {
         imageSize: 0.1,
         margin: 3,
         crossOrigin: "anonymous",
-        saveAsBlob: false
+        saveAsBlob: true
     },
     dotsOptions: {
         color: "#000000",
