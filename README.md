@@ -1,6 +1,6 @@
 # SnapQR — QR Code Generator
 
-**SnapQR** is a lightweight and customizable React hook for generating stylish QR codes using [`qr-code-styling`](https://www.npmjs.com/package/qr-code-styling).
+**SnapQR** is a lightweight and customizable React hook for generating stylish QR codes.
 It’s designed to work seamlessly with **React** based apps — offering a simple API, live updates, and flexible download options.
 
 ### Features
@@ -11,6 +11,13 @@ It’s designed to work seamlessly with **React** based apps — offering a simp
 ✅ Supports multiple formats (`svg`, `png`, `jpeg`, `webp`)
 ✅ Works perfectly with **Next.js (`"use client"`)**
 ✅ TypeScript support out of the box
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sutarrohit/snap-qr/main/public/qr-1.png" width="45%" style="margin: 10px;" />
+  <img src="https://raw.githubusercontent.com/sutarrohit/snap-qr/main/public/qr-2.png" width="45%" style="margin: 10px;" /><br/>
+  <img src="https://raw.githubusercontent.com/sutarrohit/snap-qr/main/public/qr-3.png" width="45%" style="margin: 10px;" />
+  <img src="https://raw.githubusercontent.com/sutarrohit/snap-qr/main/public/qr-4.png" width="45%" style="margin: 10px;" />
+</p>
 
 ## 1. Installation
 
@@ -42,7 +49,7 @@ export default function Home() {
     return (
         <div className='flex min-h-screen items-center justify-center border'>
             <div className='size-[500px] flex justify-center items-center'>
-                <SnapQRComponent className='border-2 border-pink-500 rounded-2xl' />
+                <SnapQRComponent className='rounded-2xl' />
             </div>
         </div>
     );
