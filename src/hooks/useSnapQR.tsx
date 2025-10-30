@@ -43,7 +43,6 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
             ...options?.layoutOptions,
             type: fileExt,
             data: currentData,
-            image: options?.layoutOptions?.image || DEFAULT_IMAGE,
             qrOptions: {
                 ...DEFAULT_OPTIONS.qrOptions,
                 ...options?.qrOptions
