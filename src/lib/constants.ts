@@ -33,4 +33,4 @@ export const DEFAULT_OPTIONS: Partial<Options> = {
     }
 } as const;
 
-export const DEFAULT_IMAGE = "./logo.svg";
+export const DEFAULT_IMAGE = "../lib/images/paperdex,";
