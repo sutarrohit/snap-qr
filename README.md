@@ -91,7 +91,9 @@ export default function App() {
                 type: "svg", // Output type: 'canvas' or 'svg'
                 width: 320, // QR code width in pixels
                 height: 320, // QR code height in pixels
-                margin: 4 // Margin around the QR code
+                margin: 4, // Margin around the QR code
+                image: "https://yourlogo.png", // Optional logo in the center
+                responsive: true // Automatically scales for different devices
             },
 
             //  QR Options - Core configuration for QR code data encoding
@@ -423,10 +425,11 @@ function OptimizedQR() {
 ## 8. Author
 
 **Rohit Sutar**
-[npmjs.com/package/snap-qr](https://www.npmjs.com/package/snap-qr) _(replace with your real link once published)_
+[npmjs.com/package/snap-qr](https://www.npmjs.com/package/snap-qr)
+[github.com/rohitsutar](https://github.com/sutarrohit)
 
 ---
 
 ## 9. License
 
-MIT © [Rohit Sutar](https://github.com/rohitsutar)
+**MIT** © [Rohit Sutar](https://github.com/sutarrohit)
