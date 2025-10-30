@@ -1,0 +1,70 @@
+{
+    "name": "snap-qr",
+    "version": "0.0.2",
+    "description": "A customizable React hook for generating and styling QR codes with logos, gradients, and images built on top of qr-code-styling.",
+    "author": "Rohit Sutar",
+    "license": "MIT",
+    "homepage": "https://github.com/sutarrohit/snap-qr#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sutarrohit/snap-qr.git"
+    },
+    "bugs": {
+        "url": "https://github.com/sutarrohit/snap-qr/issues"
+    },
+    "type": "commonjs",
+    "main": "dist/index.js",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "rollup -c --bundleConfigAsCjs",
+        "prepublishOnly": "npm run build",
+        "pack": "npm pack --dry-run"
+    },
+    "keywords": [
+        "qr",
+        "qrcode",
+        "qr-code",
+        "qr-code-generator",
+        "react-hook",
+        "react-component",
+        "qr-component",
+        "snapqr",
+        "qr-code-styling",
+        "image-qr",
+        "gradient-qr",
+        "react-qr"
+    ],
+    "peerDependencies": {
+        "react": "^18 || ^19",
+        "react-dom": "^18 || ^19"
+    },
+    "dependencies": {
+        "qr-code-styling": "^1.9.2"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^28.0.9",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@rollup/plugin-typescript": "^12.3.0",
+        "@types/react": "^19.2.2",
+        "@types/react-dom": "^19.2.2",
+        "autoprefixer": "^10.4.21",
+        "clsx": "^2.1.1",
+        "postcss": "^8.5.6",
+        "react": "^19.2.0",
+        "rollup": "^4.52.5",
+        "rollup-plugin-dts": "^6.2.3",
+        "rollup-plugin-peer-deps-external": "^2.2.4",
+        "rollup-plugin-postcss": "^4.0.2",
+        "tailwind-merge": "^3.3.1",
+        "tailwindcss": "^4.1.16",
+        "tslib": "^2.8.1",
+        "typescript": "^5.9.3"
+    }
+}
