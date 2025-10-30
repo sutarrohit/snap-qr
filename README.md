@@ -99,8 +99,7 @@ export default function App() {
                 width: 320, // QR code width in pixels
                 height: 320, // QR code height in pixels
                 margin: 4, // Margin around the QR code
-                image: "https://yourlogo.png", // Optional logo in the center
-                responsive: true // Automatically scales for different devices
+                image: "https://yourlogo.png" // Optional logo in the center
             },
 
             //  QR Options - Core configuration for QR code data encoding

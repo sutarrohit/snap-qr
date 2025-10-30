@@ -33,4 +33,4 @@ export const DEFAULT_OPTIONS: Partial<Options> = {
     }
 } as const;
 
-export const DEFAULT_IMAGE = "../lib/images/paperdex,";
+export const DEFAULT_IMAGE = "https://raw.githubusercontent.com/sutarrohit/snap-qr/main/public/paperdex.png";

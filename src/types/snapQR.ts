@@ -22,7 +22,6 @@ export interface LayoutOptions {
     image?: string;
     nodeCanvas?: Options["nodeCanvas"];
     jsdom?: Options["jsdom"];
-    responsive?: boolean;
 }
 
 export interface SnapQROptions {

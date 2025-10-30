@@ -1,4 +1,5 @@
 "use client";
+import { DEFAULT_IMAGE } from "@/lib";
 import useSnapQR from "../index";
 
 export default function Home() {
@@ -22,8 +23,7 @@ export default function Home() {
                 type: "svg",
                 shape: "square",
                 margin: 10,
-                // image: "https://app.termix.ai/_next/image?url=%2Flogo.svg&w=128&q=75&dpl=dpl_4Er1WHeqMwUabYf1D299HgK6NTvR",
-                responsive: true
+                image: DEFAULT_IMAGE
             },
 
             dotsOptions: {
