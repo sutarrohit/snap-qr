@@ -1,5 +1,7 @@
 # SnapQR — QR Code Generator
 
+![npm version](https://img.shields.io/npm/v/snap-qr.svg)
+
 **SnapQR** is a lightweight and customizable React hook for generating stylish QR codes.
 It’s designed to work seamlessly with **React** based apps — offering a simple API, live updates, and flexible download options.
 

@@ -1,6 +1,6 @@
 {
     "name": "snap-qr",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A customizable React hook for generating and styling QR codes with logos, gradients, and images built on top of qr-code-styling.",
     "author": "Rohit Sutar",
     "license": "MIT",
