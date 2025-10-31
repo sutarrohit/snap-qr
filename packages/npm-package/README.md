@@ -47,7 +47,7 @@ export default function Home() {
     return (
         <div className='flex min-h-screen items-center justify-center border'>
             <div className='size-[500px] flex justify-center items-center'>
-                <SnapQRComponent className='rounded-2xl' />
+                <SnapQRComponent className='w-full' />
             </div>
         </div>
     );
@@ -170,7 +170,7 @@ export default function App() {
 
     return (
         <div className='flex flex-col gap-4 items-center justify-center min-h-screen'>
-            <SnapQRComponent className='border rounded-2xl' />
+            <SnapQRComponent className='w-full' />
             <button onClick={() => updateData("https://google.com")} className='border px-2 py-1'>
                 Change Data
             </button>
@@ -237,7 +237,7 @@ function MultiFormatQR() {
                 <option value='webp'>WebP</option>
             </select>
 
-            <SnapQRComponent />
+            <SnapQRComponent className='w-full' />
 
             <button onClick={() => onDownloadClick("my-qr-code")}>Download as {fileExt.toUpperCase()}</button>
         </div>
@@ -335,7 +335,7 @@ function ErrorHandledQR() {
     return (
         <div>
             {error && <div className='error-message'>Error: {error}</div>}
-            <SnapQRComponent />
+            <SnapQRComponent className='w-full' />
         </div>
     );
 }
@@ -409,7 +409,7 @@ function OptimizedQR() {
     return (
         <div>
             <input value={data} onChange={(e) => setData(e.target.value)} placeholder='Type to generate QR code...' />
-            <SnapQRComponent />
+            <SnapQRComponent className='w-full' />
         </div>
     );
 }

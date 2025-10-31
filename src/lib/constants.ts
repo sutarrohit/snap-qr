@@ -1,8 +1,8 @@
 import { Options } from "qr-code-styling";
 
 export const DEFAULT_OPTIONS: Partial<Options> = {
-    width: 300,
-    height: 300,
+    width: 350,
+    height: 350,
     margin: 7,
     qrOptions: {
         typeNumber: 0,

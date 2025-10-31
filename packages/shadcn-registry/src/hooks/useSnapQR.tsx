@@ -1,7 +1,132 @@
+"use client";
+
 import { useEffect, useRef, useState, ChangeEvent, useCallback, useMemo } from "react";
-import QRCodeStyling, { Options, FileExtension, DownloadOptions, ExtensionFunction } from "qr-code-styling";
-import { SnapQROptions, UseSnapQRReturn } from "../types";
-import { DEFAULT_OPTIONS, cn } from "../lib";
+import { cn } from "@/lib/utils";
+
+/**
+ * Type definitions for SnapQR QR Code Generator
+ *
+ * This file contains all TypeScript interfaces and type definitions
+ * used by the SnapQR hook and components.
+ */
+import QRCodeStyling, {
+    DrawType,
+    TypeNumber,
+    Mode,
+    ErrorCorrectionLevel,
+    DotType,
+    CornerSquareType,
+    CornerDotType,
+    Options,
+    ShapeType,
+    FileExtension,
+    DownloadOptions,
+    ExtensionFunction
+} from "qr-code-styling";
+
+export interface LayoutOptions {
+    type?: DrawType;
+    shape?: ShapeType;
+    width?: number;
+    height?: number;
+    margin?: number;
+    image?: string;
+    nodeCanvas?: Options["nodeCanvas"];
+    jsdom?: Options["jsdom"];
+}
+
+export interface SnapQROptions {
+    layoutOptions?: LayoutOptions;
+    qrOptions?: Options["qrOptions"];
+    imageOptions?: Options["imageOptions"];
+    dotsOptions?: Options["dotsOptions"];
+    cornersSquareOptions?: Options["cornersSquareOptions"];
+    cornersDotOptions?: Options["cornersDotOptions"];
+    backgroundOptions?: Options["backgroundOptions"];
+}
+
+export interface UseSnapQRReturn {
+    SnapQRComponent: React.FC<{ className?: string }>;
+    fileExt: FileExtension;
+    currentData: string;
+    error: string | null;
+    qrCodeInstance: QRCodeStyling | null;
+    onDataChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onExtensionChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    onDownloadClick: (downloadOptions?: Partial<DownloadOptions> | string) => void;
+    updateData: (newData: string) => void;
+    updateOptions: (newOptions: Partial<SnapQROptions>) => void;
+    applyExtension: (extension: ExtensionFunction) => void;
+    deleteExtension: () => void;
+    getRawData: (extension?: FileExtension) => Promise<Blob | Buffer | null>;
+    appendToContainer: (container?: HTMLElement) => void;
+}
+
+export interface SnapQRComponentProps {
+    data: string;
+    options?: SnapQROptions;
+    className?: string;
+    onDownload?: (extension: FileExtension) => void;
+}
+
+export type {
+    DrawType,
+    TypeNumber,
+    Mode,
+    ErrorCorrectionLevel,
+    DotType,
+    CornerSquareType,
+    CornerDotType,
+    Options as QRCodeOptions,
+    ShapeType,
+    FileExtension
+};
+
+// =============================================================================
+
+/**
+ * Constants and default configurations for SnapQR
+ *
+ * This file contains default options, images, and utility functions
+ * used by the SnapQR hook and components.
+ */
+
+export const DEFAULT_OPTIONS: Partial<Options> = {
+    width: 300,
+    height: 300,
+    margin: 7,
+    qrOptions: {
+        typeNumber: 0,
+        mode: "Byte",
+        errorCorrectionLevel: "H"
+    },
+    imageOptions: {
+        hideBackgroundDots: true,
+        imageSize: 0.1,
+        margin: 3,
+        crossOrigin: "anonymous",
+        saveAsBlob: true
+    },
+    dotsOptions: {
+        color: "#000000",
+        type: "dots"
+    },
+    backgroundOptions: {
+        color: "#ffffff"
+    },
+    cornersSquareOptions: {
+        color: "#222222",
+        type: "extra-rounded"
+    },
+    cornersDotOptions: {
+        color: "#222222",
+        type: "extra-rounded"
+    }
+} as const;
+
+export const DEFAULT_IMAGE = "https://raw.githubusercontent.com/sutarrohit/snap-qr/main/public/paperdex.png";
+
+// =============================================================================
 
 /**
  * React hook to create and manage a QR code using `qr-code-styling`.

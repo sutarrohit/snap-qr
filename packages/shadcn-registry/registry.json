@@ -1,0 +1,22 @@
+{
+    "$schema": "https://ui.shadcn.com/schema/registry.json",
+    "name": "snap-qr",
+    "homepage": "https://github.com/sutarrohit/snap-qr",
+    "items": [
+        {
+            "name": "snap-qr",
+            "type": "registry:hook",
+            "title": "SnapQR — QR Code Generator",
+            "description": "SnapQR is a lightweight and customizable React hook for generating stylish QR codes. It’s designed to work seamlessly with React based apps offering a simple API, live updates, and flexible download options.",
+            "docs": "https://github.com/sutarrohit/snap-qr#readme",
+            "dependencies": ["qr-code-styling"],
+            "files": [
+                {
+                    "path": "./src/hooks/useSnapQR.tsx",
+                    "type": "registry:hook",
+                    "target": "components/ui/SnapQR.tsx"
+                }
+            ]
+        }
+    ]
+}

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, ChangeEvent, useCallback, useMemo } from "react";
 import QRCodeStyling, { Options, FileExtension, DownloadOptions, ExtensionFunction } from "qr-code-styling";
 import { SnapQROptions, UseSnapQRReturn } from "../types";
-import { DEFAULT_OPTIONS, DEFAULT_IMAGE, cn } from "../lib";
+import { DEFAULT_OPTIONS, cn } from "../lib";
 
 /**
  * React hook to create and manage a QR code using `qr-code-styling`.
@@ -31,8 +31,8 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
 
     // Track the original dimensions to use for downloads and raw exports.
     const originalDimensions = useRef({
-        width: initialOptions?.layoutOptions?.width || 1000,
-        height: initialOptions?.layoutOptions?.height || 1000
+        width: initialOptions?.layoutOptions?.width || 500,
+        height: initialOptions?.layoutOptions?.height || 500
     });
 
     // --- Compute merged options ---

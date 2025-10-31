@@ -1,6 +1,6 @@
 "use client";
-import { DEFAULT_IMAGE } from "@/lib";
-import useSnapQR from "../index";
+
+import useSnapQR from "@/hooks/useSnapQR";
 
 export default function Home() {
     const {
@@ -14,26 +14,25 @@ export default function Home() {
         fileExt,
         getRawData
     } = useSnapQR(
-        "https://paperdex.in"
+        "https://paperdex.in",
 
-        // {
-        //     layoutOptions: {
-        //         width: 500,
-        //         height: 500,
-        //         type: "svg",
-        //         shape: "square",
-        //         margin: 10,
-        //         image: DEFAULT_IMAGE
-        //     },
+        {
+            layoutOptions: {
+                width: 500,
+                height: 500,
+                type: "svg",
+                shape: "square",
+                margin: 10
+            },
 
-        //     dotsOptions: {
-        //         color: "#000",
-        //         type: "dots"
-        //     },
-        //     backgroundOptions: {
-        //         color: "#7dea28"
-        //     }
-        // }
+            dotsOptions: {
+                color: "#000",
+                type: "dots"
+            },
+            backgroundOptions: {
+                color: "#7dea28"
+            }
+        }
     );
 
     const handleGetData = async () => {
@@ -47,7 +46,7 @@ export default function Home() {
     return (
         <div className='flex flex-col gap-4 min-h-screen items-center justify-center p-5'>
             <div className='size-[250px] md:size-[400px] flex justify-center items-center border border-yellow-500 '>
-                <SnapQRComponent className='w-full' />
+                <SnapQRComponent className='' />
             </div>
             <input value={currentData} onChange={onDataChange} className='border px-2 py-1' />
             <select onChange={onExtensionChange}>
