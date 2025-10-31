@@ -86,17 +86,16 @@ Returns a set of utilities and a ready-to-render React component.
 import useSnapQR from "snap-qr";
 
 export default function App() {
-    const { SnapQRComponent, updateOptions, updateData, onDownloadClick } = useSnapQR(
+    const { SnapQRComponent, onDataChange, onExtensionChange, onDownloadClick, currentData } = useSnapQR(
         "https://paperdex.in",
 
         {
             //  Layout Options - Define the overall structure and embedded image
             layoutOptions: {
                 type: "svg", // Output type: 'canvas' or 'svg'
-                width: 320, // QR code width in pixels
-                height: 320, // QR code height in pixels
-                margin: 4, // Margin around the QR code
-                image: "https://yourlogo.png" // Optional logo in the center
+                width: 500, // QR code width in pixels
+                height: 500, // QR code height in pixels
+                margin: 4 // Margin around the QR code
             },
 
             //  QR Options - Core configuration for QR code data encoding
@@ -169,33 +168,18 @@ export default function App() {
     );
 
     return (
-        <div className='flex flex-col gap-4 items-center justify-center min-h-screen'>
-            <SnapQRComponent className='w-full' />
-            <button onClick={() => updateData("https://google.com")} className='border px-2 py-1'>
-                Change Data
-            </button>
-
-            <button
-                onClick={() =>
-                    updateOptions({
-                        backgroundOptions: {
-                            gradient: {
-                                type: "linear",
-                                rotation: 90,
-                                colorStops: [
-                                    { offset: 0, color: "#ffff" },
-                                    { offset: 1, color: "#43e97b" }
-                                ]
-                            }
-                        }
-                    })
-                }
-                className='border px-2 py-1'
-            >
-                Bg Color
-            </button>
-
-            <button onClick={onDownloadClick} className='border px-2 py-1'>
+        <div className='flex flex-col gap-4 min-h-screen items-center justify-center p-5'>
+            <div className='size-[250px] md:size-[400px] flex justify-center items-center border border-yellow-500 '>
+                <SnapQRComponent className='w-full' />
+            </div>
+            <input value={currentData} onChange={onDataChange} className='border px-2 py-1' />
+            <select onChange={onExtensionChange}>
+                <option value='svg'>SVG</option>
+                <option value='png'>PNG</option>
+                <option value='jpeg'>JPEG</option>
+                <option value='webp'>WEBP</option>
+            </select>
+            <button onClick={() => onDownloadClick()} className='border px-2 py-1'>
                 Download
             </button>
         </div>

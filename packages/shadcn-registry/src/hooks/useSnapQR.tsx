@@ -214,38 +214,42 @@ export default function useSnapQR(initialData: string, initialOptions?: SnapQROp
      * downloads/export use the intended size.
      */
     const updateOptions = useCallback((newOptions: Partial<SnapQROptions>) => {
-        setOptions((prevOptions) => ({
-            ...prevOptions,
-            layoutOptions: {
-                ...prevOptions.layoutOptions,
-                ...newOptions.layoutOptions
-            },
-            qrOptions: {
-                ...prevOptions.qrOptions,
-                ...newOptions.qrOptions
-            },
-            imageOptions: {
-                ...prevOptions.imageOptions,
-                ...newOptions.imageOptions
-            },
-            dotsOptions: {
-                ...prevOptions.dotsOptions,
-                ...newOptions.dotsOptions
-            },
-            backgroundOptions: {
-                ...prevOptions.backgroundOptions,
-                ...newOptions.backgroundOptions
-            },
-            cornersSquareOptions: {
-                ...prevOptions.cornersSquareOptions,
-                ...newOptions.cornersSquareOptions
-            },
-            cornersDotOptions: {
-                ...prevOptions.cornersDotOptions,
-                ...newOptions.cornersDotOptions
-            },
-            ...newOptions
-        }));
+        setOptions((prevOptions) => {
+            const merged: SnapQROptions = {
+                ...prevOptions,
+                ...newOptions,
+                layoutOptions: {
+                    ...prevOptions.layoutOptions,
+                    ...newOptions.layoutOptions
+                },
+                qrOptions: {
+                    ...prevOptions.qrOptions,
+                    ...newOptions.qrOptions
+                },
+                imageOptions: {
+                    ...prevOptions.imageOptions,
+                    ...newOptions.imageOptions
+                },
+                dotsOptions: {
+                    ...prevOptions.dotsOptions,
+                    ...newOptions.dotsOptions
+                },
+                backgroundOptions: {
+                    ...prevOptions.backgroundOptions,
+                    ...newOptions.backgroundOptions
+                },
+                cornersSquareOptions: {
+                    ...prevOptions.cornersSquareOptions,
+                    ...newOptions.cornersSquareOptions
+                },
+                cornersDotOptions: {
+                    ...prevOptions.cornersDotOptions,
+                    ...newOptions.cornersDotOptions
+                }
+            };
+
+            return merged;
+        });
 
         // Keep download/export dimensions in sync when layout width/height are provided.
         if (newOptions.layoutOptions?.width || newOptions.layoutOptions?.height) {

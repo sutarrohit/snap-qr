@@ -1,5 +1,4 @@
 "use client";
-import { DEFAULT_IMAGE } from "@/lib";
 import useSnapQR from "../index";
 
 export default function Home() {
@@ -13,28 +12,11 @@ export default function Home() {
         currentData,
         fileExt,
         getRawData
-    } = useSnapQR(
-        "https://paperdex.in"
-
-        // {
-        //     layoutOptions: {
-        //         width: 500,
-        //         height: 500,
-        //         type: "svg",
-        //         shape: "square",
-        //         margin: 10,
-        //         image: DEFAULT_IMAGE
-        //     },
-
-        //     dotsOptions: {
-        //         color: "#000",
-        //         type: "dots"
-        //     },
-        //     backgroundOptions: {
-        //         color: "#7dea28"
-        //     }
-        // }
-    );
+    } = useSnapQR("https://paperdex.in", {
+        dotsOptions: {
+            type: "classy"
+        }
+    });
 
     const handleGetData = async () => {
         const rawData = await getRawData(fileExt);
@@ -62,14 +44,15 @@ export default function Home() {
             <button onClick={() => updateData("https://google.com")} className='border px-2 py-1'>
                 Change Data
             </button>
-            <button onClick={() => updateOptions({ dotsOptions: { color: "#FFC0CB" } })} className='border px-2 py-1'>
+            <button
+                onClick={() => updateOptions({ backgroundOptions: { color: "#FFC0CB" } })}
+                className='border px-2 py-1'
+            >
                 Bg Color
             </button>
-            <button onClick={() => updateOptions({ cornersDotOptions: { color: "red" } })} className='border px-2 py-1'>
-                Bg Color
-            </button>
-            <button onClick={handleGetData} className='border px-2 py-1'>
-                Get Raw PNG Data
+
+            <button onClick={() => updateOptions({ dotsOptions: { color: "#238684" } })} className='border px-2 py-1'>
+                Change Dot
             </button>
         </div>
     );
